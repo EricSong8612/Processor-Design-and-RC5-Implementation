@@ -1,29 +1,10 @@
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date:    08:03:17 12/06/2016 
--- Design Name: 
--- Module Name:    ALU - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
--- Description: 
---
--- Dependencies: 
---
--- Revision: 
--- Revision 0.01 - File Created
--- Additional Comments: 
---
-----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
+-- arithmetic funcctions with Signed or Unsigned values
 --use IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if instantiating
@@ -33,50 +14,55 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity ALU is
 
-port ( clr,clk: in std_logic;
-		 a: in std_logic_vector(31 downto 0); ----- RS
-		 b: in std_logic_vector(31 downto 0); ------RT
-		 imm: in std_logic_vector(15 downto 0);
+port ( a: in std_logic_vector(31 downto 0); ----- RS
+		 b: in std_logic_vector(31 downto 0); ------RT, signed_b
 		 op: in std_logic_vector(5 downto 0);  --- opcode
-		 fun: in std_logic_vector(5 downto 0); --funtion code
+		 func: in std_logic_vector(5 downto 0); --function code
+		 alu_src: in std_logic; --control b
+		 signext_imm: in std_logic_vector(31 downto 0); --imm
+		 zero: out std_logic;
 		 dout: out std_logic_vector(31 downto 0)
 );
 end ALU;
 
 architecture Behavioral of ALU is
 
-signal signext_imm: std_logic_vector(31 downto 0); 
+signal signed_a: signed(31 downto 0);
+signal signed_b: signed(31 downto 0);
+signal signed_o: signed(31 downto 0);
 
 begin
-signext_imm <= imm & X"0000";
+
+signed_a <= signed(a);
+signed_b <= signed(b) when alu_src = '0' else signext_imm;
+
 process(clk, clr)
 
  begin
-	if(clr='1') then dout<=X"00000000";
-	elsif(clk'EVENT AND clk='1') then 
 		 case op is
-		 when X"00" => if(fun=X"00") then dout<= a + b;
-							elsif(fun=X"01") then dout<= a - b;
-							elsif(fun=X"12") then dout<= a and b;
-							elsif(fun=X"13") then dout<= a or b;
-							elsif(fun=X"14") then dout<= not(a or b);
+		 when "000000" => if(func="000000") then signed_o<= signed_a + signed_b;
+							elsif(func="000001") then signed_o<= signed_a - signed_b;
+							elsif(func="010010") then signed_o<= signed_a and signed_b;
+							elsif(func="010011") then signed_o<= signed_a or signed_b;
+							elsif(func="010100") then signed_o<= not(signed_a or signed_b);
 							end if;
-		 when X"01" => dout<= a + signext_imm;
-		 when X"02" => dout<= a - signext_imm;
-		 when X"03" => dout<= a and signext_imm;
-		 when X"04" => dout<= a or signext_imm;
-		 when X"05" => dout<= a sll conv_integer(signext_imm);
-		 when X"06" => dout<= a srl conv_integer(signext_imm);
-		 when X"07" => dout<= a + signext_imm;
-
+		 when "000001" => signed_o<= signed_a + signed_b;
+		 when "000010" => signed_o<= signed_a - signed_b;
+		 when "000011" => signed_o<= signed_a and signed_b;
+		 when "000100" => signed_o<= signed_a or signed_b;
+--		 when "000101" => signed_o<= signed_a sll conv_integer(signed_b);
+--		 when "000110" => signed_o<= signed_a srl conv_integer(signed_b);
+		 when others => signed_o<= X"FFFFFFFF";
 		 end case;
-	end if;
  end process;
 
+dout<=std_logic_vector(signed_o);
 
+process(signed_o)
+	begin
+	if (signed_o /= 0) then zero<='0';
+	else zero<='1';
+	end if;
+end process;
 
-
-
-
-end Behavioral;
-
+end behavioral;

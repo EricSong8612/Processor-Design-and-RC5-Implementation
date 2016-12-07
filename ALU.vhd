@@ -15,11 +15,10 @@ use IEEE.NUMERIC_STD.ALL;
 entity ALU is
 
 port ( a: in std_logic_vector(31 downto 0); ----- RS
-		 b: in std_logic_vector(31 downto 0); ------RT, signed_b
-		 op: in std_logic_vector(5 downto 0);  --- opcode
-		 func: in std_logic_vector(5 downto 0); --function code
+		 b: in std_logic_vector(31 downto 0); ------RT, imm
+		 alu_ctr: in std_logic_vector(2 downto 0); --control function type
 		 alu_src: in std_logic; --control b
-		 signext_imm: in std_logic_vector(31 downto 0); --imm
+		 signext_imm: in signed(31 downto 0); --imm
 		 zero: out std_logic;
 		 dout: out std_logic_vector(31 downto 0)
 );
@@ -36,23 +35,18 @@ begin
 signed_a <= signed(a);
 signed_b <= signed(b) when alu_src = '0' else signext_imm;
 
-process(clk, clr)
+process(alu_ctr)
 
  begin
-		 case op is
-		 when "000000" => if(func="000000") then signed_o<= signed_a + signed_b;
-							elsif(func="000001") then signed_o<= signed_a - signed_b;
-							elsif(func="010010") then signed_o<= signed_a and signed_b;
-							elsif(func="010011") then signed_o<= signed_a or signed_b;
-							elsif(func="010100") then signed_o<= not(signed_a or signed_b);
-							end if;
-		 when "000001" => signed_o<= signed_a + signed_b;
-		 when "000010" => signed_o<= signed_a - signed_b;
-		 when "000011" => signed_o<= signed_a and signed_b;
-		 when "000100" => signed_o<= signed_a or signed_b;
---		 when "000101" => signed_o<= signed_a sll conv_integer(signed_b);
---		 when "000110" => signed_o<= signed_a srl conv_integer(signed_b);
-		 when others => signed_o<= X"FFFFFFFF";
+		 case alu_ctr is
+		 when "000" => signed_o<= signed_a + signed_b;
+		 when "001" => signed_o<= signed_a - signed_b;
+		 when "010" => signed_o<= signed_a and signed_b;
+		 when "011" => signed_o<= signed_a or signed_b;
+		 when "100" => signed_o<= not(signed_a or signed_b);
+		 when "101" => signed_o<= signed_o<= signed_a sll conv_integer(signed_b);
+		 when "110" => signed_o<= signed_o<= signed_a srl conv_integer(signed_b);
+		 when others => null;
 		 end case;
  end process;
 

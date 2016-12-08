@@ -41,7 +41,7 @@ architecture Behavioral of adder is
 	
 begin
 
-	result <= STD_LOGIC_VECTOR( unsigned(num1) + unsigned(num2) );
+	result <= STD_LOGIC_VECTOR( signed(num1) + signed(num2) );
 
 end Behavioral;
 

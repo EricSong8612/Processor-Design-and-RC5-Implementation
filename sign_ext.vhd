@@ -31,14 +31,14 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity sign_ext is
     Port ( Input : in  STD_LOGIC_VECTOR (15 downto 0);
-           Output : out  signed (31 downto 0));
+           Output : out  STD_LOGIC_VECTOR(31 downto 0));
 end sign_ext;
 
 architecture Behavioral of sign_ext is
 
 begin
 	
-	Output <= resize(signed(Input), Output'length);
+	Output <= STD_LOGIC_VECTOR(resize(signed(Input), Output'length));
 
 end Behavioral;
 

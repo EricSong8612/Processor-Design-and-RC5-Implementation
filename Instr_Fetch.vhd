@@ -82,7 +82,7 @@ architecture Structural  of Instr_Fetch is
 	signal branch_shift_output : std_logic_vector(31 downto 0);
 	signal branch_adder_output : std_logic_vector(31 downto 0);
 	
-	signal jump_shift_output : std_logic_vector(31 downto 0);
+	--signal jump_shift_output : std_logic_vector(31 downto 0);
 	signal jump_32bit_signal : std_logic_vector(31 downto 0);
 	
 	signal branchMUX_output : std_logic_vector(31 downto 0);
@@ -101,8 +101,8 @@ begin
 	
 	instr <= InstrMemOut;
 	
-	Shift_Jump : Shift_Left_2 PORT MAP( "000000" & InstrMemOut(25 downto 0), jump_shift_output );
-	jump_32bit_signal <= pc_adder_output(31 downto 28) & jump_shift_output(27 downto 0);
+	--Shift_Jump : Shift_Left_2 PORT MAP( "000000" & InstrMemOut(25 downto 0), jump_shift_output );
+	jump_32bit_signal <= pc_adder_output(31 downto 26) & InstrMemOut(25 downto 0);
 	
 	BranchMUX : Binary_MUX PORT MAP( pc_adder_output, branch_adder_output, branch_bool, branchMUX_output);
 	

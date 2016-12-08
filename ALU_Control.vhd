@@ -33,7 +33,7 @@ entity ALU_Control is
 
 Port ( aluop : in  STD_LOGIC_VECTOR (5 downto 0);
        func : in  STD_LOGIC_VECTOR (5 downto 0);
-       alu_ctr : out  STD_LOGIC_VECTOR (2 downto 0));
+       alu_ctr : out  STD_LOGIC_VECTOR (3 downto 0));
 
 end ALU_Control;
 
@@ -44,18 +44,21 @@ begin
 	process (aluop, func)
 	begin
 		case aluop is
-		when "000000" => if(func="010000") then alu_ctr<="000";
-							  elsif(func="010001") then alu_ctr<="001";
-							  elsif(func="010010") then alu_ctr<="010";
-							  elsif(func="010011") then alu_ctr<="011";
-							  elsif(func="010100") then alu_ctr<="100";
+		when "000000" => if(func="010000") then alu_ctr<="0000";     --add
+							  elsif(func="010001") then alu_ctr<="0001";  --sub
+							  elsif(func="010010") then alu_ctr<="0010";  --and
+							  elsif(func="010011") then alu_ctr<="0011";  --or
+							  elsif(func="010100") then alu_ctr<="0100";  --nor
 							  end if;
-		 when "000001" => alu_ctr<="000";
-		 when "000010" => alu_ctr<="001";
-		 when "000011" => alu_ctr<="010";
-		 when "000100" => alu_ctr<="011";
-		 when "000101" => alu_ctr<="101";
-		 when "000110" => alu_ctr<="110";
+		 when "000001" => alu_ctr<="0000";  --addi
+		 when "000010" => alu_ctr<="0001";  --subi
+		 when "000011" => alu_ctr<="0010";  --andi
+		 when "000100" => alu_ctr<="0011";  --ori
+		 when "000101" => alu_ctr<="0101";  --shl
+		 when "000110" => alu_ctr<="0110";  --shr
+		 when "001001" => alu_ctr<="0111";  --blt
+		 when "001010" => alu_ctr<="1000";  --beq
+		 when "001011" => alu_ctr<="1001";  --bne
 		 when others => null;
 		 end case;
 	end process;

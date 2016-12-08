@@ -16,9 +16,9 @@ entity ALU is
 
 port ( a: in std_logic_vector(31 downto 0); ----- RS
 		 b: in std_logic_vector(31 downto 0); ------RT, imm
-		 alu_ctr: in std_logic_vector(2 downto 0); --control function type
+		 alu_ctr: in std_logic_vector(3 downto 0); --control function type
 		 alu_src: in std_logic; --control b
-		 signext_imm: in signed(31 downto 0); --imm
+		 imm: in std_logic_vector(31 downto 0); --imm
 		 zero: out std_logic;
 		 dout: out std_logic_vector(31 downto 0)
 );
@@ -28,34 +28,41 @@ architecture Behavioral of ALU is
 
 signal signed_a: signed(31 downto 0);
 signal signed_b: signed(31 downto 0);
+signal signext_imm: signed(31 downto 0);
 signal signed_o: signed(31 downto 0);
-
+signal blt, beq, bne: std_logic;
 begin
 
 signed_a <= signed(a);
 signed_b <= signed(b) when alu_src = '0' else signext_imm;
+signext_imm <= signed(imm);
 
 process(alu_ctr)
 
  begin
 		 case alu_ctr is
-		 when "000" => signed_o<= signed_a + signed_b;
-		 when "001" => signed_o<= signed_a - signed_b;
-		 when "010" => signed_o<= signed_a and signed_b;
-		 when "011" => signed_o<= signed_a or signed_b;
-		 when "100" => signed_o<= not(signed_a or signed_b);
-		 when "101" => signed_o<= signed_o<= signed_a sll conv_integer(signed_b);
-		 when "110" => signed_o<= signed_o<= signed_a srl conv_integer(signed_b);
+		 when "0000" => signed_o<= signed_a + signed_b;
+		 when "0001" => signed_o<= signed_a - signed_b;
+		 when "0010" => signed_o<= signed_a and signed_b;
+		 when "0011" => signed_o<= signed_a or signed_b;
+		 when "0100" => signed_o<= not(signed_a or signed_b);
+		 when "0101" => signed_o<= signed_a sll to_integer(signed_b);
+		 when "0110" => signed_o<= signed_a srl to_integer(signed_b);
+		 
+		 when "0111" => if(signed_a < signed_b) then blt<='1'; else blt<='0'; end if;
+		 when "1000" => if(signed_a = signed_b) then beq<='1'; else beq<='0'; end if;
+		 when "1001" => if(signed_a /= signed_b) then bne<='1'; else bne<='0'; end if;
+		 
 		 when others => null;
 		 end case;
  end process;
 
 dout<=std_logic_vector(signed_o);
 
-process(signed_o)
+process(blt, beq, bne)
 	begin
-	if (signed_o /= 0) then zero<='0';
-	else zero<='1';
+	if (blt='1' or beq='1' or bne='1') then zero<='1';
+	else zero<='0';
 	end if;
 end process;
 

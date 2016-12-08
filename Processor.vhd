@@ -19,6 +19,8 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -38,7 +40,7 @@ end Processor;
 
 architecture Structure of Processor is
 
-	component Instruction_Fetch is
+	component Instr_Fetch is
 	Port ( clk : in  STD_LOGIC;
 			 reset : in  STD_LOGIC;
 			 branch_in : in  STD_LOGIC_VECTOR (31 downto 0);           
@@ -76,17 +78,17 @@ architecture Structure of Processor is
 	end component;
 		
 	component ALU_Control is
-    Port ( ALUOp : in  STD_LOGIC_VECTOR (1 downto 0);
-           Instr : in  STD_LOGIC_VECTOR (5 downto 0);
-           ALUCtr : out  STD_LOGIC_VECTOR (2 downto 0));
+    Port ( aluop : in  STD_LOGIC_VECTOR (5 downto 0);
+           func : in  STD_LOGIC_VECTOR (5 downto 0);
+           alu_ctr : out  STD_LOGIC_VECTOR (3 downto 0));
 	end component;
 	
 	component ALU is
     Port ( a: in std_logic_vector(31 downto 0); ----- RS
 			  b: in std_logic_vector(31 downto 0); ------RT, imm
-			  alu_ctr: in std_logic_vector(2 downto 0); --control function type
+			  alu_ctr: in std_logic_vector(3 downto 0); --control function type
 			  alu_src: in std_logic; --control b
-			  signext_imm: in signed(31 downto 0); --imm
+			  imm: in std_logic_vector(31 downto 0); --imm
 			  zero: out std_logic;
 			  dout: out std_logic_vector(31 downto 0));
 --			  Data1 : in  STD_LOGIC_VECTOR (31 downto 0);
@@ -100,7 +102,7 @@ architecture Structure of Processor is
 	
 	component sign_ext is
     Port ( Input : in  STD_LOGIC_VECTOR (15 downto 0);
-           Output : out  signed (31 downto 0));
+           Output : out  std_logic_vector (31 downto 0));
 	end component;
 	
 	component Register_File
@@ -151,51 +153,83 @@ architecture Structure of Processor is
 	signal instr : std_logic_vector (31 downto 0);
 	
 	--Control Unit signals
-	signal ALUOp : std_logic_vector(1 downto 0);
+	signal ALUOp : std_logic_vector(5 downto 0);
 	signal RegDst : std_logic;
 	signal ALUSrc : std_logic;
 	signal MemToReg : std_logic;
 	signal RegWrite : std_logic;
 	signal MemRead : std_logic;
 	signal MemWrite : std_logic;
-	signal branchFromctrlUnit : std_logic;
-	signal branchNEFromCtrlUnit : std_logic;
+	signal branchEQ : std_logic;
+	signal branchNE : std_logic;
+	signal branchLT : std_logic;
+	signal shift : std_logic;
+	signal jump : std_logic;
+	signal halt : std_logic;
 	
 	--ALU Control signals
-	signal ALUCtr : std_logic_vector(2 downto 0);
+--	signal func : std_logic_vector(5 downto 0);
+	signal ALUCtr : std_logic_vector(3 downto 0);
 	
 	--ALU signals
-	signal RegData1 : std_logic_vector(31 downto 0);
-	signal RegData2 : std_logic_vector(31 downto 0);
-	signal Sign_Extended : signed(31 downto 0);
+	signal DataA : std_logic_vector(31 downto 0);
+	signal DataB : std_logic_vector(31 downto 0);
+	signal signext_imm : std_logic_vector(31 downto 0);
 	signal Zero : std_logic;
 	signal ALU_Result : std_logic_vector(31 downto 0);
 	
 	--Register File signals
+--	signal rsAddress : std_logic_vector(4 downto 0);
+--	signal rtAddress : std_logic_vector(4 downto 0);
+--	signal rdAddress : std_logic_vector(4 downto 0);
 	signal WriteData : std_logic_vector(31 downto 0);
-	signal WriteAddr : std_logic_vector(4 downto 0);
+	signal dst : std_logic_vector(4 downto 0);
+--	signal rsOut : std_logic_vector(31 downto 0); --DataA
+--	signal rtOut : std_logic_vector(31 downto 0); --DataB
 	
 	--Asynchronous RAM signals
-	signal RamDataOut : std_logic_vector(31 downto 0);
+--	signal mem_read : std_logic;
+--	signal mem_write : std_logic;
+	signal DataOut : std_logic_vector(31 downto 0);
 
 begin
-
-	RAM : Data_Memory PORT MAP(clk, MemWrite, MemRead, ALU_Result, RamDataOut, RegData2);
-	WriteData <= RamDataOut when MemToReg = '1' else
-					 ALU_Result;
-
-	InstrFetch : Instruction_Fetch PORT MAP (clk, reset, std_logic_vector(Sign_Extended), jump_bool, branch_bool, instr);
-	CtrlUnit : Decode PORT MAP( instr(31 downto 26), ALUOp, RegDst, ALUSrc, MemToReg, RegWrite, MemRead, MemWrite, jump_bool,branchNEFromCtrlUnit, branchFromctrlUnit);
+  
+	InstrFetch : Instr_Fetch PORT MAP (clk, reset, signext_imm, jump_bool, branch_bool, instr);
+	
+	CtrlUnit : Decode PORT MAP( instr(31 downto 26), ALUOp, ALUSrc, branchLT, branchNE, branchEQ, RegWrite, RegDst, MemRead, MemWrite, MemToReg, shift, jump, halt);
+	
 	ALUControl : ALU_Control PORT MAP(ALUOp, instr(5 downto 0), ALUCtr);
 	
-	ALUMain : ALU PORT MAP(RegData1, RegData2, Sign_Extended, ALUSrc, Zero, ALU_Result, ALUCtr);
-	branch_bool <= (branchFromctrlUnit AND Zero) Or (branchNEFromCtrlUnit AND not Zero);
+	RegFile : Register_File PORT MAP(clk, instr(25 downto 21), instr(20 downto 16), dst, RegWrite, WriteData, DataA, DataB);
+	dst <= instr(20 downto 16) when RegDst = '0' else
+		    instr(15 downto 11);
+					 
+	ALUMain : ALU PORT MAP(DataA, DataB, ALUCtr, ALUSrc, signext_imm, zero, ALU_Result);
 	
-	Sign_Extender : sign_ext PORT MAP (instr(15 downto 0), Sign_Extended);
-	
-	RegFile : Register_File PORT MAP(WriteData, clk, reset, instr(25 downto 21) , RegData1, instr(20 downto 16), RegData2, WriteAddr, RegWrite);
-	WriteAddr <= instr(20 downto 16) when RegDst = '0' else
-					 instr(15 downto 11);
+	RAM : Data_Memory PORT MAP(clk, MemRead, MemWrite, DataB, ALU_Result, DataOut);
+	WriteData <= DataOut when MemToReg = '1' else
+					 ALU_Result;		
+					 
+	Sign_Extender : sign_ext PORT MAP (instr(15 downto 0), signext_imm);
+	branch_bool <= (branchEQ AND Zero) Or (branchNE AND Zero) Or (branchLT AND Zero);
+	jump_bool <= jump;
+					 
+--	RAM : Data_Memory PORT MAP(clk, MemWrite, MemRead, ALU_Result, RamDataOut, RegData2);
+--	WriteData <= RamDataOut when MemToReg = '1' else
+--					 ALU_Result;
+--
+--	InstrFetch : Instruction_Fetch PORT MAP (clk, reset, Sign_Extended, jump_bool, branch_bool, instr);
+--	CtrlUnit : Decode PORT MAP( instr(31 downto 26), ALUOp, RegDst, ALUSrc, MemToReg, RegWrite, MemRead, MemWrite, jump_bool,branchNEFromCtrlUnit, branchFromctrlUnit);
+--	ALUControl : ALU_Control PORT MAP(ALUOp, instr(5 downto 0), ALUCtr);
+--	
+--	ALUMain : ALU PORT MAP(RegData1, RegData2, Sign_Extended, ALUSrc, Zero, ALU_Result, ALUCtr);
+--	branch_bool <= (branchFromctrlUnit AND Zero) Or (branchNEFromCtrlUnit AND not Zero);
+--	
+--	Sign_Extender : sign_ext PORT MAP (instr(15 downto 0), Sign_Extended);
+--	
+--	RegFile : Register_File PORT MAP(WriteData, clk, reset, instr(25 downto 21) , RegData1, instr(20 downto 16), RegData2, WriteAddr, RegWrite);
+--	WriteAddr <= instr(20 downto 16) when RegDst = '0' else
+--					 instr(15 downto 11);
 	
 	
 					 

@@ -81,10 +81,9 @@ begin
 					"000101" when "000101",
 					"000110" when "000110",
 					"001111" when others;
-		
-		shift<='0' when op = "000101" ; --left
-		shift<='1' when op = "000110" ; --right
-		
+
+		shift<='0' when op = "000101" else '1' when op = "000110";-- 0 is left, 1 is right
+
 		mem_read<='1' when op = "000111" else '0';
 		mem_to_reg<='1' when op = "000111" else '0';
 		mem_write<='1' when op = "001000" else '0';

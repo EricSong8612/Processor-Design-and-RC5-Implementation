@@ -49,7 +49,7 @@ end Register_File;
 architecture Behavioral of Register_File is
 
 	TYPE regfile IS ARRAY (0 TO 31) OF STD_LOGIC_VECTOR(31 DOWNTO 0);
-	signal reg_file: regfile := (X"00000000", X"00000000", X"00000000",
+	signal reg_file: regfile := (X"00000009", X"00000000", X"00000000",
       X"00000000", X"00000000", X"00000000", X"00000000", X"00000000",
 		X"00000000", X"00000000", X"00000000", X"00000000", X"00000000",
 		X"00000000", X"00000000", X"00000000", X"00000000", X"00000000",

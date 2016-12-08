@@ -34,8 +34,8 @@ signal blt, beq, bne: std_logic;
 begin
 
 signed_a <= signed(a);
-signed_b <= signed(b) when alu_src = '0' else signext_imm;
 signext_imm <= signed(imm);
+signed_b <= signed(b) when alu_src = '0' else signext_imm;
 
 process(alu_ctr)
 

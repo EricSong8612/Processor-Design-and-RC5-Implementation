@@ -1,15 +1,15 @@
-ADDI R1,R0,112
-LW R2, (R1)	// A, R2 = CT[0]
+ADDI R1,R0,116
+LW R3, (R1)	// B, R3 = CT[1]
 ADDI R1，R1，-4	//R1 - 4
-LW R3，(R1)	// B, R3 = CT[1]
+LW R2，(R1)	// A, R2 = CT[0]
 
 
 ADDI R5,R0，1	//i = 1
 ADDI R6,R0，13	//r = 13
 ADDI R7,R0,0x11111111	//R7 = 1
 
-ADDI R1，R1， 4	//R1 - 4
-LW R4,(R1)
+ADDI R1，R1, -4	//R1 - 4, point to s[25]
+LW R4,(R1)   //R4 = S[25]
 SUB R3，R3，R4
 
 ADDI R17,R0,31	//R17 = 31
@@ -78,7 +78,7 @@ AND R10, R2,R9
 AND R11,R8,R3
 OR	R2, R11, R10	//XOR A AND B
 ADDI R5,R5,1
-BLT R5,R6,-112
+BLT R5,R6,-224
 
 ADDI R1，R1,-4
 LW R4，(R1)	//R4 LOAD S[1]

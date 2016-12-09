@@ -213,26 +213,7 @@ begin
 	Sign_Extender : sign_ext PORT MAP (instr(15 downto 0), signext_imm);
 	branch_bool <= (branchEQ AND Zero) Or (branchNE AND Zero) Or (branchLT AND Zero);
 	jump_bool <= jump;
-					 
---	RAM : Data_Memory PORT MAP(clk, MemWrite, MemRead, ALU_Result, RamDataOut, RegData2);
---	WriteData <= RamDataOut when MemToReg = '1' else
---					 ALU_Result;
---
---	InstrFetch : Instruction_Fetch PORT MAP (clk, reset, Sign_Extended, jump_bool, branch_bool, instr);
---	CtrlUnit : Decode PORT MAP( instr(31 downto 26), ALUOp, RegDst, ALUSrc, MemToReg, RegWrite, MemRead, MemWrite, jump_bool,branchNEFromCtrlUnit, branchFromctrlUnit);
---	ALUControl : ALU_Control PORT MAP(ALUOp, instr(5 downto 0), ALUCtr);
---	
---	ALUMain : ALU PORT MAP(RegData1, RegData2, Sign_Extended, ALUSrc, Zero, ALU_Result, ALUCtr);
---	branch_bool <= (branchFromctrlUnit AND Zero) Or (branchNEFromCtrlUnit AND not Zero);
---	
---	Sign_Extender : sign_ext PORT MAP (instr(15 downto 0), Sign_Extended);
---	
---	RegFile : Register_File PORT MAP(WriteData, clk, reset, instr(25 downto 21) , RegData1, instr(20 downto 16), RegData2, WriteAddr, RegWrite);
---	WriteAddr <= instr(20 downto 16) when RegDst = '0' else
---					 instr(15 downto 11);
-	
-	
-					 
+					 			 
 	instruction <= instr;
 	
 

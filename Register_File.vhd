@@ -49,8 +49,8 @@ end Register_File;
 architecture Behavioral of Register_File is
 
 	TYPE regfile IS ARRAY (0 TO 31) OF STD_LOGIC_VECTOR(31 DOWNTO 0);
-	signal reg_file: regfile := (X"00000009", X"00000000", X"00000000",
-      X"00000000", X"00000000", X"00000000", X"00000000", X"00000000",
+	signal reg_file: regfile := (X"00000001", X"00000000", X"00000007",
+      X"00000001", X"00000000", X"00000001", X"00000000", X"00000000",
 		X"00000000", X"00000000", X"00000000", X"00000000", X"00000000",
 		X"00000000", X"00000000", X"00000000", X"00000000", X"00000000",
 		X"00000000", X"00000000", X"00000000", X"00000000", X"00000000",
@@ -65,7 +65,7 @@ begin
 	rt_out<=reg_file(conv_integer(rt));
 
 	--Write into register
-	process (clk)
+	process (clk, write_data, dst)
 	begin
 		if (clk'event and clk='1') then
 		if (write_enable='1') then reg_file(conv_integer(dst)) <= write_data;

@@ -72,16 +72,9 @@ begin
 --		when "111111" => halt<='1';
 --		when others => null;
 --		end case;
-		with op select 
-		aluop <= "000000" when "000000",
-					"000001" when "000001",
-					"000010" when "000010",
-					"000011" when "000011",
-					"000100" when "000100",
-					"000101" when "000101",
-					"000110" when "000110",
-					"001111" when others;
-		
+
+		aluop <= op; 
+
 		alu_src<='0' when op = "000000" else '1';-- 0 is R type, 1 is I type
 		shift<='0' when op = "000101" else '1' when op = "000110";-- 0 is left, 1 is right
 

@@ -76,7 +76,7 @@ architecture Structural  of Instr_Fetch is
 	end component;
 	
 	signal pc_output : STD_LOGIC_VECTOR (31 downto 0);
-	constant PC_INCREMENT : std_logic_vector(31 downto 0):= X"00000004"; 
+	constant PC_INCREMENT : std_logic_vector(31 downto 0):= X"00000001"; 
 	signal pc_adder_output : std_logic_vector(31 downto 0);
 	
 	signal branch_shift_output : std_logic_vector(31 downto 0);

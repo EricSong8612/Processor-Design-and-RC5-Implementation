@@ -56,9 +56,11 @@ begin
 		 when "000100" => alu_ctr<="0011";  --ori
 		 when "000101" => alu_ctr<="0101";  --shl
 		 when "000110" => alu_ctr<="0110";  --shr
-		 when "001001" => alu_ctr<="0111";  --blt
-		 when "001010" => alu_ctr<="1000";  --beq
-		 when "001011" => alu_ctr<="1001";  --bne
+		 when "000111" => alu_ctr<="0111";  --lw
+		 when "001000" => alu_ctr<="1000";  --sw
+		 when "001001" => alu_ctr<="1001";  --blt
+		 when "001010" => alu_ctr<="1010";  --beq
+		 when "001011" => alu_ctr<="1011";  --bne
 		 when others => null;
 		 end case;
 	end process;

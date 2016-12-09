@@ -44,17 +44,18 @@ architecture Behavioral of Instruction_Memory is
 
    TYPE instrfile IS ARRAY (0 TO 31) OF STD_LOGIC_VECTOR(31 DOWNTO 0);
 	--signal data_file: datafile;
-	signal instr_file: instrfile:=instrfile'(X"08010007", X"00000000", X"00000000",
-      X"00000000", X"00000000", X"00000000", X"00000000", X"00000000",
-		X"00000000", X"00000000", X"00000000", X"00000000", X"00000000",
-		X"00000000", X"00000000", X"00000000", X"00000000", X"00000000",
+	signal instr_file: instrfile:=instrfile'( X"00000000", 
+		"00000100000000010000000000000111", "00000100000000100000000000001000",
+      "00000000010000010001100000010000", X"00000004", X"00000005", X"00000006", X"00000007",
+		X"00000008", X"00000009", X"0000000a", X"0000000b", X"0000000c",
+		X"0000000d", X"0000000e", X"0000000f", X"00000000", X"00000000",
 		X"00000000", X"00000000", X"00000000", X"00000000", X"00000000",
 		X"00000000", X"00000000", X"00000000", X"00000000", X"00000000",
 		X"00000000", X"00000000", X"00000000", X"00000000"); 
 
 begin
 
-	instr<=instr_file(conv_integer(address(31 downto 2)));
+	instr<=instr_file(conv_integer(address(31 downto 0)));
 
 end Behavioral;
 

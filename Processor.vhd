@@ -107,6 +107,7 @@ architecture Structure of Processor is
 	
 	component Register_File
 		PORT( clk: in std_logic;
+				reset: in std_logic;
 				rs: in std_logic_vector(4 downto 0);
 				rt: in std_logic_vector(4 downto 0);
 				dst: in std_logic_vector(4 downto 0); --rd or rt
@@ -200,7 +201,7 @@ begin
 	
 	ALUControl : ALU_Control PORT MAP(ALUOp, instr(5 downto 0), ALUCtr);
 	
-	RegFile : Register_File PORT MAP(clk, instr(25 downto 21), instr(20 downto 16), dst, RegWrite, WriteData, DataA, DataB);
+	RegFile : Register_File PORT MAP(clk, reset, instr(25 downto 21), instr(20 downto 16), dst, RegWrite, WriteData, DataA, DataB);
 	dst <= instr(20 downto 16) when RegDst = '0' else
 		    instr(15 downto 11);
 					 

@@ -34,6 +34,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity Register_File is
 
 port ( clk: in std_logic;
+		 reset: in std_logic;
 		 rs: in std_logic_vector(4 downto 0);
 		 rt: in std_logic_vector(4 downto 0);
 		 dst: in std_logic_vector(4 downto 0); --rd or rt
@@ -49,29 +50,29 @@ end Register_File;
 architecture Behavioral of Register_File is
 
 	TYPE regfile IS ARRAY (0 TO 31) OF STD_LOGIC_VECTOR(31 DOWNTO 0);
-	signal reg_file: regfile := (X"00000001", X"00000001", X"00000002",
-      X"00000000", X"00000004", X"00000000", X"00000000", X"00000000",
-		X"00000000", X"00000000", X"00000000", X"00000000", X"00000000",
-		X"00000000", X"00000000", X"00000000", X"00000000", X"00000000",
-		X"00000000", X"00000000", X"00000000", X"00000000", X"00000000",
-		X"00000000", X"00000000", X"00000000", X"00000000", X"00000000",
-		X"00000000", X"00000000", X"00000000", X"00000000");
+	signal reg_file: regfile;
+		
 begin
-	
-	--read Rs
-	rs_out<=reg_file(conv_integer(rs));
-	
-	--Read Rt
-	rt_out<=reg_file(conv_integer(rt));
-
-	--Write into register
-	process (clk, write_data, dst)
-	begin
-		if (clk'event and clk='1') then
-		if (write_enable='1') then reg_file(conv_integer(dst)) <= write_data;
-		end if;
+	process (clk, reset)
+   begin
+		if (reset = '1') then reg_file <= (X"00000000", X"00000000", X"00000000",
+					X"00000000", X"00000000", X"00000000", X"00000000", X"00000000",
+					X"00000000", X"00000000", X"00000000", X"00000000", X"00000000",
+					X"00000000", X"00000000", X"00000000", X"00000000", X"00000000",
+					X"00000000", X"00000000", X"00000000", X"00000000", X"00000000",
+					X"00000000", X"00000000", X"00000000", X"00000000", X"00000000",
+					X"00000000", X"00000000", X"00000000", X"00000000");
+		elsif (clk'event and clk='1') then
+				if (write_enable='1') then reg_file(conv_integer(dst)) <= write_data;
+				end if;
 		end if;
 	end process;
+	
+	--read Rs
+	rs_out<=reg_file(conv_integer(rs)) when conv_integer(rs) /= 0 else X"00000000";
+	
+	--Read Rt
+	rt_out<=reg_file(conv_integer(rt)) when conv_integer(rt) /= 0 else X"00000000";
 
 end Behavioral;
 

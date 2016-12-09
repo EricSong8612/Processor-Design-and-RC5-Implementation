@@ -54,25 +54,6 @@ end Decode;
 architecture Behavioral of Decode is
 
 begin
-
---		case op is
---		when "000000" => aluop<=op; mem_to_reg<='0';
---		when "000001" => aluop<=op;
---		when "000010" => aluop<=op;
---		when "000011" => aluop<=op;
---		when "000100" => aluop<=op;
---		when "000101" => shift<='0'; --left
---		when "000110" => shift<='1'; --right
---		when "000111" => mem_read<='1'; mem_to_reg<='1';
---		when "001000" => mem_write<='1';
---		when "001001" => branch_lt<='1';
---		when "001010" => branch_eq<='1';
---		when "001011" => branch_ne<='1';
---		when "001100" => jump<='1';
---		when "111111" => halt<='1';
---		when others => null;
---		end case;
-
 		aluop <= op; 
 
 		alu_src<='0' when op = "000000" else '1';-- 0 is R type, 1 is I type
@@ -82,6 +63,19 @@ begin
 		mem_to_reg<='1' when op = "000111" else '0';
 		mem_write<='1' when op = "001000" else '0';
 		
+		with op select
+		reg_write <= '1' when "000000",
+					 	 '1' when "000001",
+						 '1' when "000010",
+						 '1' when "000011",
+						 '1' when "000100",
+						 '1' when "000101",
+						 '1' when "000110",
+						 '1' when "000111",
+						 '0' when others;
+						 
+		reg_dst <= '1' when op = "000000" else '0';
+ 		
 		branch_lt<='1' when op = "001001" else '0';
 		branch_eq<='1' when op = "001010" else '0';
 		branch_ne<='1' when op = "001011" else '0';

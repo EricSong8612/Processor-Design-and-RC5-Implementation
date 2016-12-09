@@ -57,7 +57,7 @@ begin
 		aluop <= op; 
 
 		alu_src<='0' when op = "000000" else '1';-- 0 is R type, 1 is I type
-		shift<='0' when op = "000101" else '1' when op = "000110";-- 0 is left, 1 is right
+		shift<='1' when op = "000101" or op = "000110" else '0';
 
 		mem_read<='1' when op = "000111" else '0';
 		mem_to_reg<='1' when op = "000111" else '0';

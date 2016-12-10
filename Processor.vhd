@@ -212,7 +212,8 @@ begin
 					 ALU_Result;		
 					 
 	Sign_Extender : sign_ext PORT MAP (instr(15 downto 0), signext_imm);
-	branch_bool <= (branchEQ AND Zero) Or (branchNE AND Zero) Or (branchLT AND Zero);
+	
+	branch_bool <=Zero;
 	jump_bool <= jump;
 					 			 
 	instruction <= instr;

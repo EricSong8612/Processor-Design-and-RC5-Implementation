@@ -35,7 +35,7 @@ entity Instr_Fetch is
            reset : in  STD_LOGIC;
 			  branch_in : in  STD_LOGIC_VECTOR (31 downto 0); --signext_imm       
            jump_bool : in  STD_LOGIC; --jump or not (jump mux)
-           branch_bool : in  STD_LOGIC; --branch or pc+4 (branch mux)
+           branch_bool : in  STD_LOGIC; --branch or pc+1 (branch mux)
            instr : out  STD_LOGIC_VECTOR (31 downto 0)); --instruction
 			  
 end Instr_Fetch;
@@ -61,11 +61,11 @@ architecture Structural  of Instr_Fetch is
 			       result : OUT STD_LOGIC_VECTOR (31 downto 0));
 	end component;
 	
-	component Shift_Left_2
-			Port ( input : in  STD_LOGIC_VECTOR (31 downto 0); --address       
-			       output : out STD_LOGIC_VECTOR(31 downto 0) --address
-					);
-	end component;
+--	component Shift_Left_2
+--			Port ( input : in  STD_LOGIC_VECTOR (31 downto 0); --address       
+--			       output : out STD_LOGIC_VECTOR(31 downto 0) --address
+--					);
+--	end component;
 	
 	component Binary_MUX
 			Port ( inputA : in  STD_LOGIC_VECTOR (31 downto 0); --sel='0'
@@ -79,7 +79,7 @@ architecture Structural  of Instr_Fetch is
 	constant PC_INCREMENT : std_logic_vector(31 downto 0):= X"00000001"; 
 	signal pc_adder_output : std_logic_vector(31 downto 0);
 	
-	signal branch_shift_output : std_logic_vector(31 downto 0);
+	--signal branch_shift_output : std_logic_vector(31 downto 0);
 	signal branch_adder_output : std_logic_vector(31 downto 0);
 	
 	--signal jump_shift_output : std_logic_vector(31 downto 0);
@@ -96,8 +96,8 @@ begin
 	
 	PC_Adder : Adder PORT MAP( pc_output, PC_INCREMENT, pc_adder_output );
 	
-	Shift_Branch : Shift_Left_2 PORT MAP( branch_in, branch_shift_output );
-	Branch_Adder : Adder PORT MAP( branch_shift_output, pc_adder_output, branch_adder_output );
+	--Shift_Branch : Shift_Left_2 PORT MAP( branch_in, branch_shift_output );
+	Branch_Adder : Adder PORT MAP( branch_in, pc_adder_output, branch_adder_output );
 	
 	instr <= InstrMemOut;
 	

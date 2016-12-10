@@ -61,12 +61,6 @@ architecture Structural  of Instr_Fetch is
 			       result : OUT STD_LOGIC_VECTOR (31 downto 0));
 	end component;
 	
---	component Shift_Left_2
---			Port ( input : in  STD_LOGIC_VECTOR (31 downto 0); --address       
---			       output : out STD_LOGIC_VECTOR(31 downto 0) --address
---					);
---	end component;
-	
 	component Binary_MUX
 			Port ( inputA : in  STD_LOGIC_VECTOR (31 downto 0); --sel='0'
                 inputB : in  STD_LOGIC_VECTOR (31 downto 0); --sel='1'
@@ -79,10 +73,8 @@ architecture Structural  of Instr_Fetch is
 	constant PC_INCREMENT : std_logic_vector(31 downto 0):= X"00000001"; 
 	signal pc_adder_output : std_logic_vector(31 downto 0);
 	
-	--signal branch_shift_output : std_logic_vector(31 downto 0);
 	signal branch_adder_output : std_logic_vector(31 downto 0);
 	
-	--signal jump_shift_output : std_logic_vector(31 downto 0);
 	signal jump_32bit_signal : std_logic_vector(31 downto 0);
 	
 	signal branchMUX_output : std_logic_vector(31 downto 0);
@@ -91,21 +83,19 @@ architecture Structural  of Instr_Fetch is
 	signal InstrMemOut : std_logic_vector(31 downto 0);
 begin
 
-	PC1: PC PORT MAP(PC_new_value, reset, clk, pc_output);
-	InstrMem : Instruction_Memory PORT MAP( pc_output, InstrMemOut );
+	Program_Counter: PC PORT MAP(PC_new_value, reset, clk, pc_output);
+	Instruction_Mem : Instruction_Memory PORT MAP( pc_output, InstrMemOut );
 	
 	PC_Adder : Adder PORT MAP( pc_output, PC_INCREMENT, pc_adder_output );
-	
-	--Shift_Branch : Shift_Left_2 PORT MAP( branch_in, branch_shift_output );
+
 	Branch_Adder : Adder PORT MAP( branch_in, pc_adder_output, branch_adder_output );
 	
 	instr <= InstrMemOut;
 	
-	--Shift_Jump : Shift_Left_2 PORT MAP( "000000" & InstrMemOut(25 downto 0), jump_shift_output );
 	jump_32bit_signal <= pc_adder_output(31 downto 26) & InstrMemOut(25 downto 0);
 	
-	BranchMUX : Binary_MUX PORT MAP( pc_adder_output, branch_adder_output, branch_bool, branchMUX_output);
+	Branch_MUX : Binary_MUX PORT MAP( pc_adder_output, branch_adder_output, branch_bool, branchMUX_output);
 	
-	JumpMUX : Binary_MUX PORT MAP ( branchMUX_output, jump_32bit_signal, jump_bool, PC_new_value);
+	Jump_MUX : Binary_MUX PORT MAP ( branchMUX_output, jump_32bit_signal, jump_bool, PC_new_value);
 	
 end Structural ;

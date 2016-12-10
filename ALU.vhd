@@ -1,3 +1,22 @@
+----------------------------------------------------------------------------------
+-- Company: 
+-- Engineer: 
+-- 
+-- Create Date:    12:36:06 12/07/2016 
+-- Design Name: 
+-- Module Name:    ALU - Behavioral 
+-- Project Name: 
+-- Target Devices: 
+-- Tool versions: 
+-- Description: 
+--
+-- Dependencies: 
+--
+-- Revision: 
+-- Revision 0.01 - File Created
+-- Additional Comments: 
+--
+----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
@@ -29,7 +48,7 @@ architecture Behavioral of ALU is
 signal signed_a: signed(31 downto 0);
 signal signed_b: signed(31 downto 0);
 signal signed_o: signed(31 downto 0);
-signal blt, beq, bne: std_logic;
+
 begin
 
 signed_a <= signed(a);
@@ -48,21 +67,15 @@ process(signed_a, signed_b, alu_ctr)
 		 when "0110" => signed_o<= signed_a srl to_integer(signed_b);
 		 when "0111" => signed_o<= signed_a + signed_b;
 		 when "1000" => signed_o<= signed_a + signed_b;
-		 when "1001" => if(signed_a < signed_b) then blt<='1'; else blt<='0'; end if;
-		 when "1010" => if(signed_a = signed_b) then beq<='1'; else beq<='0'; end if;
-		 when "1011" => if(signed_a /= signed_b) then bne<='1'; else bne<='0'; end if;
+		 when "1001" => if(signed_a < signed(b)) then signed_o <= X"00000000"; else signed_o <= X"ffffffff"; end if;
+		 when "1010" => if(signed_a = signed(b)) then signed_o <= X"00000000"; else signed_o <= X"ffffffff"; end if;
+		 when "1011" => if(signed_a /= signed(b)) then signed_o <= X"00000000"; else signed_o <= X"ffffffff"; end if;
 		 
 		 when others => null;
 		 end case;
  end process;
 
 dout<=std_logic_vector(signed_o);
-
-process(blt, beq, bne)
-	begin
-	if (blt='1' or beq='1' or bne='1') then zero<='1';
-	else zero<='0';
-	end if;
-end process;
+zero <= '1' when (signed_o = X"00000000") else '0';
 
 end behavioral;

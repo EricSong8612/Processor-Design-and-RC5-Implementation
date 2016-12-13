@@ -97,7 +97,7 @@ disp_sw <= sw(0);
 
 
 
-Proc: Processor PORT MAP(  clk=>clk,
+Proc: Processor PORT MAP(  clk=>counter(2),
 							reset=>reset,
 							ukey=>ukey,
 							main_din=>main_din,

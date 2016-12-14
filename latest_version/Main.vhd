@@ -72,7 +72,8 @@ signal key_out: std_logic_vector(63 downto 0);
 signal counter: STD_LOGIC_VECTOR(20 downto 0) := (others => '0');
 signal an_sig: std_logic_vector(7 downto 0);
 signal disp_sw : std_logic;
-signal sw_out: std_logic_vector(63 downto 0); 
+signal sw_out: std_logic_vector(63 downto 0);
+signal ncounter: std_logic; 
 
 
 COMPONENT  Processor  -- Key expansion module
@@ -96,8 +97,7 @@ disp_sw <= sw(0);
 --output <= dout;
 
 
-
-Proc: Processor PORT MAP(  clk=>counter(2),
+Proc: Processor PORT MAP(  clk=>ncounter,
 							reset=>reset,
 							ukey=>ukey,
 							main_din=>main_din,
@@ -167,6 +167,22 @@ WITH state select
 --		end case;
 --end if;
 --end process;
+process(reset,clk)
+begin
+	if(reset='1') then
+		ncounter <= '0';
+	else
+		if(STATE = ST_OPERATION) THEN
+			if(sw(15)='1') then
+				ncounter <= btnu;
+			else
+				ncounter <= counter(2);
+			end if;
+		else
+			ncounter <= counter(2);
+		end if;
+	end if;
+end process;
 
 PROCESS(reset, clk)
 BEGIN
@@ -205,7 +221,7 @@ BEGIN
 --										ELSIF(sw(15)='1' and sw(14)='1') THEN dout<=dec_dout; 
 --									   ELSIF(sw(15)='0' and sw(14)='0') THEN dout<=key_out;END IF;
 --										
-									  IF(btnu='1') THEN state<=ST_IDLE; END IF;
+									  IF(btnl='1') THEN state<=ST_IDLE; END IF;
 		END CASE;
 	END IF;
 END PROCESS;
@@ -623,6 +639,7 @@ elsif rising_edge(clk) then
 	end case;
 end if;
 end process;
+
 
 				
 count: process(clk, reset)

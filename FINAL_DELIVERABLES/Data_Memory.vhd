@@ -92,38 +92,10 @@ begin
 
 	--Read from mem
 	dout<= data_file(conv_integer(address(31 downto 0))) when mem_read='1';
-	
---	enc_dout(63 downto 32)<=data_file(28); -------READ OUTPUT
---	enc_dout(31 downto 0)<=data_file(29);
-	
-	
---	WITH data_file(34) SELECT 
---		enc_dout(63 downto 32)<=data_file(28) WHEN X"11111111", X"00000000" WHEN OTHERS;
---	WITH data_file(34) SELECT 	
---		enc_dout(31 downto 0)<=data_file(29) WHEN X"11111111", X"00000000" WHEN OTHERS;
---	WITH data_file(34) SELECT 	
---		dec_dout(63 downto 32)<=data_file(32)WHEN X"11111111", X"00000000" WHEN OTHERS;
---	WITH data_file(34) SELECT 	
---		dec_dout(31 downto 0)<=data_file(33) WHEN X"11111111", X"00000000" WHEN OTHERS;
---	WITH data_file(34) SELECT 	
---		key_out<= data_file(27)&data_file(27)WHEN X"11111111", X"0000000000000000" WHEN OTHERS;
---	
-	
-	
+
 	--Write into mem
 	process (clk, mem_write)
 	begin
-
---		else
---			enc_dout(63 downto 32)<=X"FFFFFFFF"; -------READ OUTPUT
---			enc_dout(31 downto 0)<=X"FFFFFFFF";
---			dec_dout(63 downto 32)<=X"FFFFFFFF";
---			dec_dout(31 downto 0)<=X"FFFFFFFF"; 
---			key_out<= X"FFFFFFFFFFFFFFFF";
---		end if;
-		
---		enc_dout(63 downto 32)<= data_file(to_integer(unsigned(sw(6 downto 1))));
---	   enc_dout(31 downto 0)<= data_file(34);
       enc_dout(63 downto 32)<=data_file(28); -------READ OUTPUT
 		enc_dout(31 downto 0)<=data_file(29);
 	   dec_dout(63 downto 32)<=data_file(32);
@@ -141,13 +113,6 @@ begin
 												 data_file(50)<= X"00000000";
 												 data_file(0)<= main_din(63 downto 32);
 												 data_file(1)<= main_din(31 downto 0);end if;
-
---			if (data_file(34) = X"11111111")	Then									 
---			enc_dout(63 downto 32)<=data_file(28); -------READ OUTPUT
---			enc_dout(31 downto 0)<=data_file(29);
---			dec_dout(63 downto 32)<=data_file(32);
---			dec_dout(31 downto 0)<=data_file(33); 
---			key_out<= data_file(27)&data_file(27); end if;
 			
 			if (mem_write='1') then data_file(conv_integer(address(31 downto 0))) <= din; end if;
 	   end if;

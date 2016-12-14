@@ -40,8 +40,6 @@ entity Main is
 			  btnu: in STD_LOGIC; 
 			  btnd: in STD_LOGIC;
 			  instruction : out std_logic_vector(31 downto 0);
---			  output: out std_logic_vector(63 downto 0);
---			  led: out std_logic_vector(15 downto 0);
 			  an  : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
 			  sevenseg: OUT STD_LOGIC_VECTOR(6 DOWNTO 0)
 			  );
@@ -62,17 +60,16 @@ signal ukey: std_logic_vector(63 downto 0);
 signal main_din: std_logic_vector(63 downto 0);
 signal user_data_rdy: std_logic;
 signal all_rdy: std_logic;
---signal key_dout: std_logic_vector(63 downto 0);
+
 signal enc_dout: std_logic_vector(63 downto 0);
 signal dec_dout: std_logic_vector(63 downto 0);
 signal dout: std_logic_vector(63 downto 0);
 signal key_out: std_logic_vector(63 downto 0);
---signal counter: STD_LOGIC_VECTOR(63 DOWNTO 0); -- segment counter
---signal an_sig     : STD_LOGIC_VECTOR(7 DOWNTO 0);  -- segment circle
+
 signal counter: STD_LOGIC_VECTOR(20 downto 0) := (others => '0');
 signal an_sig: std_logic_vector(7 downto 0);
 signal disp_sw : std_logic;
-signal sw_out: std_logic_vector(63 downto 0); 
+signal sw_out: std_logic_vector(63 downto 0);
 signal ncounter: std_logic; 
 
 
@@ -94,9 +91,6 @@ END COMPONENT;
 begin
 an<=an_sig;
 disp_sw <= sw(0);
---output <= dout;
-
-
 
 Proc: Processor PORT MAP(  clk=>ncounter,
 							reset=>reset,
@@ -112,30 +106,12 @@ Proc: Processor PORT MAP(  clk=>ncounter,
 							sw_out => sw_out
 						);
 
----- Input Control
---process(reset, clk)
---begin
---if (reset = '1') then
---	ukey<=X"0000000000000000";z
---	main_din<=X"0000000000000000";
-----	dout<=X"f000000000000000";
---elsif (rising_edge(clk)) then
---	if (state = ST_IDLE) THEN 
---		IF(btnd='1') THEN ukey(15 DOWNTO 0)<= sw;
---		ELSIF(btnu='1') THEN ukey(31 DOWNTO 16)<= sw;
---		ELSIF(btnr='1') THEN ukey(47 DOWNTO 32)<= sw;
---		ELSIF(btnl='1') THEN ukey(63 DOWNTO 48)<= sw; 
---		END IF;
---	elsif (state = ST_UKEY_RDY) THEN 
---		IF(btnd='1') THEN main_din(15 DOWNTO 0)<= sw;
---		ELSIF(btnu='1') THEN main_din(31 DOWNTO 16)<= sw;
---		ELSIF(btnl='1') THEN main_din(47 DOWNTO 32)<= sw;
---		ELSIF(btnr='1') THEN main_din(63 DOWNTO 48)<= sw; 
---		END IF;
---	end if;
---end if;
---end process;
+WITH state select
+	user_data_rdy <= '1' WHEN ST_DATA_SET, '0' WHEN OTHERS;
 
+WITH state select
+	all_rdy <= '1' WHEN ST_OPERATION, '0' WHEN OTHERS;
+	
 process(reset,clk)
 begin
 	if(reset='1') then
@@ -153,130 +129,38 @@ begin
 	end if;
 end process;
 
-WITH state select
-	user_data_rdy <= '1' WHEN ST_DATA_SET, '0' WHEN OTHERS;
-
-WITH state select
-	all_rdy <= '1' WHEN ST_OPERATION, '0' WHEN OTHERS;
-	
---WITH state select
---	led(15) <= '1' WHEN ST_IDLE, '0' WHEN OTHERS;
---	
---WITH state select
---	led(14) <= '1' WHEN ST_UKEY_RDY, '0' WHEN OTHERS;
---
---WITH state select
---	led(13) <= '1' WHEN ST_DATA_SET, '0' WHEN OTHERS;
---
---WITH state select
---	led(12) <= '1' WHEN ST_OPERATION, '0' WHEN OTHERS;
-
----- State Machine
---process(reset, clk, btnl, btnr, btnd)
---begin
---if (reset = '1') then state <= ST_IDLE;
---else case state is
---		when ST_IDLE => if (btnl = '1') then state <= ST_UKEY_RDY; end if;
---		when ST_UKEY_RDY => if (btnr = '1') then state <= ST_DATA_SET; end if;
---		when ST_DATA_SET => if (btnd = '1') then state <= ST_OPERATION; end if;
---		when ST_OPERATION => IF(sw(15)='1' and sw(14)='0') THEN dout<=enc_dout; 
---								ELSIF(sw(15)='1' and sw(14)='1') THEN dout<=dec_dout; 
---								ELSIF(sw(15)='0' and sw(14)='0') THEN dout<=key_out;END IF;
---		end case;
---end if;
---end process;
-
 PROCESS(reset, clk)
 BEGIN
 	IF(reset='1') THEN
 		state<=ST_IDLE;
 		ukey<=X"0000000000000000";
 		main_din<=X"0000000000000000";
---		enc_dout<=X"0000000000000000";
---		dec_dout<=X"0000000000000000";
 		dout<=X"f000000000000000";
---		user_data_rdy<='0';
---		all_rdy<='0';
---		led<=X"0000";
 		ELSIF(clk'EVENT AND clk='1') THEN
 
 		CASE state IS
-			WHEN ST_IDLE=>		--led(15)<='1';
+			WHEN ST_IDLE=>		
 									IF(btnd='1') THEN ukey(15 DOWNTO 0)<= sw;
 									ELSIF(btnu='1') THEN ukey(31 DOWNTO 16)<= sw;
 									ELSIF(btnr='1') THEN ukey(47 DOWNTO 32)<= sw;
 									ELSIF(btnl='1') THEN ukey(63 DOWNTO 48)<= sw;state<=ST_UKEY_RDY;
 								END IF;
-			WHEN ST_UKEY_RDY=> --led(14)<='1';led(15)<='0';
+			WHEN ST_UKEY_RDY=> 
 									dout <= ukey;
 									IF(btnd='1') THEN main_din(15 DOWNTO 0)<= sw;
 									ELSIF(btnu='1') THEN main_din(31 DOWNTO 16)<= sw;
 									ELSIF(btnl='1') THEN main_din(47 DOWNTO 32)<= sw;
 									ELSIF(btnr='1') THEN main_din(63 DOWNTO 48)<= sw;state<=ST_DATA_SET;
 								END IF;
-			WHEN ST_DATA_SET=> --led(13)<='1';led(14)<='0';led(15)<='0';
+			WHEN ST_DATA_SET=> 
 									dout <= main_din;
 									IF(btnd='1') THEN state<=ST_OPERATION; END IF;
-			WHEN ST_OPERATION=> --led(12)<='1';led(13)<='0';led(14)<='0';led(15)<='0';
+			WHEN ST_OPERATION=> 
 										dout <= sw_out;
---										IF(sw(15)='1' and sw(14)='0') THEN dout<=enc_dout; 
---										ELSIF(sw(15)='1' and sw(14)='1') THEN dout<=dec_dout; 
---									   ELSIF(sw(15)='0' and sw(14)='0') THEN dout<=key_out;END IF;
---										
 									  IF(btnl='1') THEN state<=ST_IDLE; END IF;
 		END CASE;
 	END IF;
 END PROCESS;
-
---PROCESS(reset, clk)
---BEGIN
---	IF(reset='1') THEN
---		state<=ST_IDLE;
---		ukey<=X"0000000000000000";
---		main_din<=X"0000000000000000";
-----		enc_dout<=X"0000000000000000";
-----		dec_dout<=X"0000000000000000";
---		dout<=X"f000000000000000";
---		user_data_rdy<='0';
---		all_rdy<='0';
---		led<=X"0000";
---		ELSIF(clk'EVENT AND clk='1') THEN
---
---		CASE state IS
---			WHEN ST_IDLE=>		led(15)<='1';
---									IF(btnd='1') THEN ukey(15 DOWNTO 0)<= sw;
---									ELSIF(btnu='1') THEN ukey(31 DOWNTO 16)<= sw;
---									ELSIF(btnr='1') THEN ukey(47 DOWNTO 32)<= sw;
---									ELSIF(btnl='1') THEN ukey(63 DOWNTO 48)<= sw;state<=ST_UKEY_RDY;
---								END IF;
---			WHEN ST_UKEY_RDY=>led(14)<='1';led(15)<='0';
---										IF(btnd='1') THEN main_din(15 DOWNTO 0)<= sw;
---									ELSIF(btnu='1') THEN main_din(31 DOWNTO 16)<= sw;
---									ELSIF(btnl='1') THEN main_din(47 DOWNTO 32)<= sw;
---									ELSIF(btnr='1') THEN main_din(63 DOWNTO 48)<= sw;state<=ST_DATA_SET;user_data_rdy<='1';
---								END IF;
---			WHEN ST_DATA_SET=> led(13)<='1';led(14)<='0';led(15)<='0';
---									IF(btnd='1') THEN state<=ST_OPERATION; all_rdy<='1';user_data_rdy<='0'; END IF;
---			WHEN ST_OPERATION=> led(12)<='1';led(13)<='0';led(14)<='0';led(15)<='0';
---										IF(sw(15)='1' and sw(14)='0') THEN dout<=enc_dout; 
---										ELSIF(sw(15)='1' and sw(14)='1') THEN dout<=dec_dout; 
---									   ELSIF(sw(15)='0' and sw(14)='0') THEN dout<=key_out;END IF;
---										
---									  IF(btnu='1') THEN state<=ST_IDLE; END IF;
---		END CASE;
---	END IF;
---END PROCESS;
-
-
---
----- round counter
---    PROCESS(reset, clk)  BEGIN
---        IF(reset='1') THEN
---           counter<=X"0000000000000000";
---        ELSIF(clk'EVENT AND clk='1') THEN
---					counter <= counter+'1';
---        END IF;
---    END PROCESS;
 
 segmentcontrol: process(an_sig, disp_sw, dout)
 begin
@@ -641,6 +525,7 @@ elsif rising_edge(clk) then
 	end case;
 end if;
 end process;
+
 
 				
 count: process(clk, reset)

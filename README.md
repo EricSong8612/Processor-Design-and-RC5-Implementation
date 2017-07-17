@@ -11,4 +11,4 @@ The instruction set supported by this Processor is defined as below.
 (All operations are performed assuming 2’s complement notation for the operands and the result, unless otherwise specified.) 
 ADD, ADDI, SUB, SUBI, AND, ANDI, OR, NOR, ORI, SHL, SHR, LW, SW, BLT, BEQ, BNE, JMP, HAL.
 
-For implementation details, please read Design-Implement.docx
+For implementation details, please read Design-Implement.pdf
